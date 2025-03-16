@@ -1,4 +1,4 @@
-# Proposal11111fasdfasd
+# Proposal
 
 ---
 
