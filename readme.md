@@ -1,130 +1,142 @@
-# Proposal
-
----
+# Revised Proposal
 
 ## 1. Description of the Dataset
 
-This dataset contains comprehensive records of animals handled by a shelter in or near Long Beach. Each row describes a single animal’s intake and outcome. It includes the following key information:
+The dataset, **longbeach.csv**, contains intake and outcome records from an animal shelter in Long Beach. Each row represents an animal's journey through the shelter, with attributes including:
 
-- **Animal-Specific Details**  
-  - **animal_id**: Unique identifier for each animal.  
-  - **animal_name**: Name assigned to the animal (if known).  
-  - **animal_type**: Species (e.g., dog, cat).  
-  - **primary_color**: Main coat color.  
-  - **secondary_color**: Secondary coat color (if applicable).  
-  - **sex**: Biological sex and alteration status (e.g., male/neutered, female/spayed).
+- **Latitude** and **Longitude**: Numeric coordinates of where the animal was found.
+- **Animal Type**: Categorical (e.g., dog, cat, bird, reptile).
+- **Primary Color**: Main color (e.g., black, brown).
+- **Secondary Color**: Additional color, if present (e.g., white, gray).
+- **Sex**: Gender and alteration status (e.g., Neutered, Spayed, Female, Male).
+- **Date of Birth (dob)**: For calculating age.
+- **Intake Date** and **Outcome Date**: Entry and exit dates for time-in-shelter calculations.
+- **Intake Condition**: Condition at intake (e.g., normal, injured severe).
+- **Intake Type**: Reason for intake (e.g., stray, owner surrender).
+- **Intake Subtype**: Specific details of intake (e.g., field, OTC).
+- **Outcome Type**: Final outcome (e.g., adopted, euthanized, transferred).
 
-- **Intake Information**  
-  - **intake_date**: Date the animal was brought into the shelter.  
-  - **intake_condition**: Condition of the animal upon intake (e.g., healthy, injured).  
-  - **intake_type**: Broad category of intake (e.g., stray, owner surrender).  
-  - **intake_subtype**: Additional details about how the animal was brought in (e.g., seized, walk-in).  
-  - **reason_for_intake**: Reason provided for why the animal came to the shelter (e.g., lost, relinquishment).  
-  - **crossing**: Possibly indicates cross streets or boundaries where the animal was found or transferred.  
-  - **jurisdiction**: The legal area or municipality responsible for the animal’s intake.
-
-- **Outcome Information**  
-  - **outcome_date**: Date the animal left the shelter or its status was updated.  
-  - **outcome_type**: Description of the animal’s outcome (e.g., adopted, returned to owner, euthanized).  
-  - **outcome_subtype**: Additional specificity of the outcome (e.g., foster, transfer).  
-  - **outcome_is_dead**: Binary indicator showing if the animal was deceased at outcome.  
-  - **was_outcome_alive**: Binary indicator showing if the animal was alive at outcome (inverse of `outcome_is_dead`).
-
-- **Geographical Information**  
-  - **latitude**: Numeric latitude coordinate of where the animal was found.  
-  - **longitude**: Numeric longitude coordinate of where the animal was found.  
-  - **geopoint**: Combined geographic reference (latitude, longitude) for mapping.
-
-The dataset likely contains **several thousand records** and about **15–20 columns**. It was gathered by shelter staff for operational tracking and record-keeping.
+The dataset likely includes thousands of records, collected by shelter staff for operational purposes, offering a robust foundation for spatial and predictive analyses.
 
 ---
 
 ## 2. Reason for Choosing the Dataset
 
-This dataset is highly suitable for research into **animal shelter outcomes** and **adoption factors** because:
+This dataset is well-suited for the proposed research because it:
 
-1. **Comprehensive Animal Profiles**: It includes detailed descriptors (type, color, sex), enabling nuanced analyses of which animals are more frequently adopted.  
-2. **Geographical Detail**: Latitude and longitude fields allow for spatial analyses (e.g., examining whether particular neighborhoods see more strays of a certain species).  
-3. **Outcome Tracking**: Dates and types of outcomes facilitate longitudinal insights (e.g., time in shelter before adoption, reason for intake vs. final outcome).  
-4. **Potential for Merging**: The structured nature of key attributes (e.g., breed, intake_reason) makes it easier to incorporate external data if needed.
+1. **Provides Detailed Intake and Outcome Data**: Enables exploration of factors influencing shelter outcomes.
+2. **Includes Geographical Coordinates**: Facilitates spatial analysis of animal distributions across administrative areas.
+3. **Contains Rich Animal Attributes**: Supports in-depth study of adoption predictors like age, color, and shelter stay duration.
 
 ---
 
 ## 3. The Two Research Questions
 
-1. **Question 1**: How does the location (latitude, longitude) relate to the type of animal?  
-   - **Motivation**: Determine if certain species (e.g., cats vs. dogs) cluster in specific areas.  
-   - **Key Variables**:  
-     - **latitude**, **longitude** (numerical)  
-     - **animal_type** (categorical)
+### Research Question 1
+**How does human population density relate to the distribution of animal types (e.g., cats vs. dogs) across different administrative areas, and what insights can this provide for targeted animal welfare programs?**
 
-2. **Question 2**: What factors influence the likelihood of an animal being adopted?  
-   - **Motivation**: Discover which attributes are most predictive of successful adoption.  
-   - **Key Variables**:  
-     - **outcome_type** (filtered for “Adopted”)  
-     - **animal_type**, **primary_color**, **sex**, **intake_condition**, **reason_for_intake**
+- **Motivation**: Understanding why certain animal types are more prevalent in specific areas—beyond mere clustering—can reveal underlying socio-economic or environmental factors (e.g., population density, urban vs. rural settings). This can guide targeted interventions like spay/neuter campaigns or adoption drives in high-stray neighborhoods.
+- **Key Variables**:
+  - **Latitude, Longitude** (mapped to administrative areas)
+  - **Animal Type** (categorical: dog, cat, etc.)
+  - **External Population Density** (continuous, per administrative area)
+
+### Research Question 2
+**What factors, including animal attributes and shelter stay duration, influence the likelihood of an animal being adopted?**
+
+- **Motivation**: Identifying predictors of adoption—such as age, time in shelter, or alteration status—can help shelters optimize strategies, such as prioritizing marketing for animals with lower adoption chances (e.g., older black cats).
+- **Key Variables**:
+  - **Outcome Type** (binary: Adopted vs. Not Adopted)
+  - **Animal Type**
+  - **Primary Color**, **Secondary Color**
+  - **Sex** (including alteration status)
+  - **Age** (derived from dob)
+  - **Shelter Stay Duration** (outcome_date - intake_date)
+  - **Intake Condition**, **Intake Type**, **Intake Subtype**
 
 ---
 
 ## 4. Plan for Answering Each Question
 
-### 4.1. Plan for Question 1: Geographical Correlation with Animal Type
+### 4.1. Plan for Research Question 1: Population Density and Animal Type Distribution
 
-1. **Data Subset/Preparation**  
-   - Focus on `latitude`, `longitude`, `animal_type`.  
-   - Exclude records missing valid geographical data (or consider an imputation strategy).
+#### Data Preparation
+- **Geographical Mapping**: Use latitude and longitude to assign each record to an administrative area (e.g., districts or neighborhoods) via geocoding or spatial joining with a shapefile of Long Beach administrative boundaries.
+- **External Data**: Obtain population density data for each administrative area from sources like U.S. Census Bureau datasets.
+- **Cleaning**: Exclude records with missing or invalid coordinates.
 
-2. **Analytical Approach**  
-   - **Exploratory Data Analysis (EDA)**:  
-     - Scatter plots or heat maps using `latitude` and `longitude` to visualize location clusters.  
-     - Color-code or facet by `animal_type` to see if cats/dogs appear in distinct areas.  
-   - **Statistical/Clustering Methods**:  
-     - Potentially cluster animals by intake location; compare cluster composition by species.
+#### Analytical Approach
+- **Exploratory Data Analysis (EDA)**:
+  - Calculate the ratio of animal types (e.g., cat-to-dog ratio) per administrative area.
+  - Compare these ratios to population density to identify correlations (e.g., higher stray cat rates in densely populated urban zones).
+- **Visualization**:
+  - Create **choropleth maps** where administrative areas are shaded by animal type ratios or stray density, overlaid with population density data for visual comparison.
+  - Group individual data points into larger points per administrative area to reduce noise and improve readability.
+- **Statistical Analysis**:
+  - Use correlation tests (e.g., Pearson) to quantify the relationship between population density and animal type ratios.
+- **Clustering**:
+  - Apply **DBSCAN** (Density-Based Spatial Clustering of Applications with Noise) to identify areas with unusually high stray rates relative to population density. DBSCAN is preferred for spatial data as it handles noise well and doesn’t require specifying cluster numbers upfront, unlike **K-means**, which assumes spherical clusters and may struggle with irregular spatial patterns.
 
-3. **Possible Findings**  
-   - Certain species dominating specific neighborhoods.  
-   - Insights informing resource allocation, such as targeting spay/neuter campaigns in high-stray areas.
+#### Potential Outcomes
+- Identify neighborhoods with high stray animal rates disproportionate to their population density, suggesting areas needing targeted spay/neuter or adoption programs.
+- Uncover why these patterns exist (e.g., dense urban areas may lack resources for pet retention), informing resource allocation.
 
 ---
 
-### 4.2. Plan for Question 2: Factors Influencing Adoption Likelihood
+### 4.2. Plan for Research Question 2: Factors Influencing Adoption Likelihood
 
-1. **Data Subset/Preparation**  
-   - Filter by `outcome_type` to compare “Adopted” vs. other outcomes (e.g., euthanized, returned to owner).  
-   - Include predictors like `animal_type`, `primary_color`, `sex`, `intake_condition`, `reason_for_intake`.
+#### Data Preparation
+- **Feature Engineering**:
+  - Calculate **Age** by subtracting `dob` from `intake_date`.
+  - Compute **Shelter Stay Duration** (in days) as `outcome_date` - `intake_date`.
+- **Data Subset**:
+  - Filter for records with valid `outcome_type`, coding as binary (1 = Adopted, 0 = Not Adopted).
+  - Ensure all predictors (`animal_type`, `primary_color`, `secondary_color`, `sex`, `intake_condition`, `intake_type`, `intake_subtype`, `age`, `shelter_stay_days`) are clean and encoded (e.g., one-hot encoding for categorical variables).
+- **Handling Missing Data**: Impute or exclude missing values as needed (e.g., median age for missing `dob`).
 
-2. **Analytical Approach**  
-   - **Descriptive Analysis**: Compute adoption rates for each category of predictor.  
-   - **Predictive Modeling**:  
-     - **Logistic Regression**: Model adoption (1) vs. non-adoption (0).  
-     - Alternatively, tree-based algorithms (e.g., Random Forest) to rank variable importance.
+#### Analytical Approach
+- **Descriptive Analysis**:
+  - Compute adoption rates by attribute (e.g., by color, age group, alteration status).
+  - Analyze relationships, such as how shelter stay duration varies by age or color (e.g., “Adult black cats wait 20% longer than other cats”).
+- **Predictive Modeling**:
+  - Use **Logistic Regression** as a baseline to model adoption likelihood, interpreting coefficients for feature impact (e.g., positive coefficient for “Neutered” indicates higher adoption odds).
+  - Explore **Random Forest** to capture non-linear relationships and rank feature importance (e.g., age vs. shelter stay).
+- **Statistical Tests**:
+  - Apply chi-square tests to assess associations between categorical predictors (e.g., `secondary_color`, `sex`) and adoption.
+- **External Data**:
+  - Merge with American Kennel Club (AKC) breed popularity rankings (for dogs) to test if trendy breeds have shorter shelter stays.
 
-3. **Statistical Tests**  
-   - Conduct chi-square or other relevant hypothesis tests for categorical variables.  
-   - Examine logistic regression coefficients (sign, p-values) to interpret the direction and significance of each factor.
+#### Visualizations
+- **Bar Charts**: Adoption rates by attribute (e.g., color, alteration status).
+- **Box Plots**: Shelter stay duration by age group or animal type.
+- **Feature Importance Plots**: From Random Forest, highlighting top predictors.
 
-4. **Visualizations**  
-   - Bar charts showing adoption proportions (e.g., by `animal_type`, `intake_condition`).  
-   - Coefficient plots highlighting logistic regression results.
-
-5. **Interpretation**  
-   - Identify which animal or intake factors (e.g., age, color, reason for intake) correlate strongly with adoption likelihood.  
-   - Provide targeted strategies (e.g., marketing campaigns for animals with lower adoption probabilities).
+#### Interpretation
+- Identify key adoption predictors (e.g., younger animals or altered pets) and provide actionable recommendations (e.g., promote older animals with longer shelter stays).
 
 ---
 
 ## 5. Possible External Data for Merging
 
-- **Breed Popularity Data**: Publicly available breed rankings can be joined (if breed details are derivable from `animal_name` or another column) to see if more popular breeds experience quicker adoptions.  
-- **Local Event/Campaign Data**: Track adoption events or public awareness campaigns to see if there’s a corresponding surge in adoption rates.
+### Population Density Data
+- **Source**: U.S. Census Bureau or local government demographic datasets.
+- **Integration**: Match by administrative area names or codes to the geocoded shelter data.
+- **Purpose**: Correlate human population density with animal type distributions to identify high-stray areas and underlying socio-economic factors.
+
+### Breed Popularity Data
+- **Source**: American Kennel Club (AKC) annual breed popularity rankings.
+- **Integration**: Map AKC breed names to `animal_type` (for dogs) using approximate matching or manual categorization.
+- **Purpose**: Assess if popular breeds are adopted faster, aiding marketing strategies for less popular breeds.
+
+### Additional Considerations
+- **Local Campaign Data**: Check availability of adoption event records from Long Beach shelter archives or local animal welfare organizations. If unavailable, analyze temporal adoption trends (e.g., seasonal patterns) as a proxy.
+- **Socio-Economic Data**: Optionally include income levels or urban/rural classifications from census data to enrich Question 1’s analysis.
 
 ---
 
-### Summary
+## Summary
 
-This proposal outlines the use of **longbeach.csv** to address two main questions about animal shelter data:
+This revised proposal leverages **longbeach.csv** to:
 
-1. **Geographical Distributions**: Determine how **location** (latitude, longitude) correlates with **animal type**.  
-2. **Adoption Drivers**: Identify which attributes and circumstances (color, sex, intake condition, reason for intake) increase the chances of an animal being adopted.
-
-With detailed animal, intake, and outcome records — plus geographical coordinates — this dataset offers rich opportunities for statistical and predictive analysis.  
+1. **Research Question 1**: Investigate how population density influences animal type distributions across administrative areas using choropleth maps and DBSCAN clustering, providing insights for targeted welfare programs.
+2. **Research Question 2**: Model adoption likelihood with enhanced predictors (e.g., age, shelter stay duration, alteration status) via logistic regression and Random Forest, integrating breed popularity data to optimize shelter strategies.
